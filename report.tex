@@ -26,22 +26,116 @@
 \begin{document}
 \maketitle
 
-\section{Abstract}
+\vspace{10mm}
 
-\section{Table of Contents}
+\begin{abstract}
+Ecosystems are a big research area in biology and related fields, where interactions between species and their effect on the overall system is observed. This report describes a simple simulation of an ecosystem, modelled as fixed objects and live creatures in a two-dimensional grid. The simulation is tick-based and each object is implemented as an Erlang process.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
 
 \section{Introduction}
 
+The pasture is built around a two-dimensional delimited area of a rectangular form. We view the pasture from above, and ignore any hills and slopes. The rectangular area is divided into a grid. Each creature (animal or plant) and object included in the model represents a \emph{population} of creatures or objects of the same kind. This allows the creatures to reproduce without having another creature of the same kind nearby. Each object and creature in the pasture occupies exactly one square.
+
+This dynamic model of the ecosystem of a pasture is of course very simplified compared to reality.
+
 \section{Related Work}
 
-\section{Functional Requirements}
+Ecosystem simulation, game of life, multiprocessing, message passing
 
-\section{Non-functional Requirements}
+\newpage
+
+\section{Requirements}
+
+\subsection{Functional Requirements}
+
+\begin{enumerate}
+\item The pasture should contain fences, grass tufts, foxes and rabbits.
+
+\item The simulation time is measure in the unit \emph{glan} (an ancient unit of time which is at least 200 000 glan old and nowadays almost completely forgotten).
+
+\item Animals, that is, foxes and rabbits, eat food at adjacent squares.
+
+\item It takes a certain number of glan for the animal to move one square.
+
+\item If a square is occupied by a fixed objects nothing else is allowed to ever enter the same square.
+
+\item Fences are the only type of fixed objects.
+
+\item Live creatures can reproduce. They die if they are without food too long or get eaten by another creature.
+
+\item Plants are live creatures that reproduce whenever there is room for them to grow.
+
+  \begin{enumerate}
+  \item Grass tufts are plants that reproduce by division. They can grow whenever there are no fixed objects.
+
+  \item Grass tufts divide in two after a certain time (given as parameter), provided that there is a free adjacent square.
+
+  \item Grass tufts do not eat.
+
+  \item Grass tufts can not starve to death.
+  \end{enumerate}
+
+\item Animals are live creatures that can reproduce at a rate depending on the type of animal, under certain circumstances.
+
+  \begin{enumerate}
+  \item An animal can live a certain number of glan before it dies of starvation.
+
+  \item An animal can move around in the pasture, at different speeds for different types of animals.
+
+  \item Animals may only move to an adjacent square, either vertically, horizontally or diagonally.
+
+  \item An animal eats food if it is hungry and the food is at an adjacent position.
+
+  \item An animal reproduces when it eats, but it can only reproduce when it has reached a certain age, and after a reproduction it takes a certain time before it can reproduce again.
+
+  \item Animals can only reproduce if there is a free adjacent square
+
+  \item Animals live until they die of starvation or get eaten.
+
+  \item Rabbits are animals that have foxes as enemies and eat grass tufts.
+
+  \item Foxes are animals that do not have any enemies and eat rabbits.
+  \end{enumerate}
+
+\end{enumerate}
+
+\subsection{Non-functional Requirements}
+
+\begin{enumerate}
+\item Each animal, plant and fence should be implemented as an Erlang process.
+
+\item Each position in the pasture may only contain one object or creature.
+
+\item The size of the pasture, the initial number of inhabitants of different types and the behavior of the different animals at the start of the simulation is controlled with parameters that can be set at the start of the simulation, without re-compiling the program.
+
+\item Surrounding the pasture with fences is sufficient to keep the inhabitants inside, there is no need for (and must be no) knowledge of the size of the pasture.
+
+\item The inhabitants of the simulation must have a position so that the system knows where they are, but they must not use this position in their intelligence (if they are intelligent).
+
+\item All parameters should have default values.
+
+\item The default parameters should be set so that the system is reasonably stable, so that there isn't one species which always dies out or floods the pasture.
+
+\item Magic numbers and hard coded constants should be avoided to the extent possible. If used, they should be properly defined as descriptively named constants.
+
+\item The program should be free from duplicated code, for instance in the different animal classes (but the requirement applies to the simulation code in general).
+\end{enumerate}
+
+\newpage
 
 \section{User guide}
 
 \subsection{Getting Started}
 \subsection{Known Limitations}
+
+It would be possible to add intelligence and vision to the simulation, so that animals can see food or threats at a distance and act accordingly. This has not been implemented. Animals would then tend to move toward food and run away from enemies. Different types of animals would have different sight ranges, determining at which distance they can discover food, obstacles and/or enemies.
+
 \subsection{Detailed Documentation} % Interface specification?
 
 \section{References}
