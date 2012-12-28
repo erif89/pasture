@@ -1,0 +1,10 @@
+*_files
+*_files
+*.htm
+*.beam
+*.aux
+*.log
+*.out
+*.pdf
+*.gz
+*.toc
