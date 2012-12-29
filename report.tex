@@ -144,9 +144,15 @@ TODO: How we arrived at our solution, how we use any given code, how we use stan
 
 TODO: Algorithms and representation of data.
 
-\subsubsection{Communication protocol}
+\subsubsection{Communication protocol and grid representation}
 
-Example:
+The entities (fixed objects and live creatures) need a way of communicating with each other. One way to do this would be to use a key-value data store structure such as a dictionary (dict). The dict could then map grid coordinates (x, y) to lists/sets of entity PIDs.
+
+An alternative design would include not having a dict process but instead representing the grid using processes with links to its neighbors, each representing a tile/position. 
+This would mean initializing the grid as a two-dimensional, doubly-linked list, but might improve scalability. 
+One could also consider having multiple dict processes, to reduce the bottleneck factor, each responsible for different parts of the grid.
+
+Example (using dictionary):
 
 A fox (randomly) selects an adjacent position in the grid to move to, and performs a lookup in the dict (which maps positions to entity PIDs) to get the PID of the process located there, if any. 
 If there is no process there, the fox moves there and updates its state and position in the dict. 
@@ -156,10 +162,9 @@ If it says that it's another fox or a fence it stays at the current position and
 If it says that it's a grass tuft it moves there as if there was nothing there. 
 The dict will have to store a list of PIDs to accomodate the need of having both a fox and a grass tuft on the same position in the grid.
 
-An alternative design would include not having a dict process but instead representing the grid using processes with links to its neighbors. 
-This would mean initializing the grid as a two-dimensional, doubly-linked list, but might improve scalability. 
-One could also consider having multiple dict processes, to reduce the bottleneck factor, each responsible for different parts of the grid.
+Example (using processes):
 
+The initialization is complicated compared to using a dictionary. For each entity that is spawned, it needs to know the PID of the process representing the position, and processes for adjacent tiles must be spawned when needed.
 
 \subsubsection{Objects and classes}
 
@@ -184,6 +189,8 @@ TODO Difficult corner cases, anything that required deliberation on our part, or
 TODO Race condition considerations
 
 TODO An argument to why our solution produces a correct result.
+
+FIXME Foxes can eat very fast, a more realistic scenario would require them to get hungry again before they eat again
 
 \section{References}
 
