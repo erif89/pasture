@@ -146,17 +146,16 @@ TODO: Algorithms and representation of data.
 
 \subsubsection{Communication protocol and grid representation}
 
-The entities (fixed objects and live creatures) need a way of communicating with each other, preferably in constant time with its neighbours. Therefore, the grid is represented by an ets that maps grid coordinates (x, y) to entity PIDs.
+The entities (fixed objects and live creatures) need a way of communicating with each other, preferably in constant time with its neighbours. Therefore, the grid is represented by an ets that maps grid coordinates (x, y) to the PIDs of the entities currently positioned at those coordinates. In the typical case, there will be at most two entities at a single position, for example a grass tuft and a fox.
 
 Example:
 
-A fox (randomly) selects an adjacent position in the grid to move to, and performs a lookup in the dict (which maps positions to entity PIDs) to get the PID of the process located there, if any. 
+A fox (randomly) selects an adjacent position in the grid to move to, and performs a lookup in the dict (which maps positions to entity PIDs) to get the PIDs of the processes located there, if any. 
 If there is no process there, the fox moves there and updates its state and position in the dict. 
-Otherwise, it sends a message to the process requiring it to identify itself. 
-If the process answers and says that it's a sheep, the fox devours it before moving there. 
-If it says that it's another fox or a fence it stays at the current position and only updates hunger and similiar stats. 
-If it says that it's a grass tuft it moves there as if there was nothing there. 
-The dict will have to store a list of PIDs to accomodate the need of having both a fox and a grass tuft on the same position in the grid.
+Otherwise, it sends a message to the processes requiring them to identify themselves. 
+The processes then replies with a message saying what type of entity they represent,
+which guides the fox into taking the appropriate action (devour, stay and/or move).
+After the actions have been taken, the status of the fox is updated.
 
 \subsubsection{Objects and classes}
 
