@@ -2,7 +2,7 @@
 
 -export([init/0])
 
-init() -> spawn(fun() -> runOut(ScriptPort, ServerPort) end).
+init() -> spawn(fun() -> live(default) end).
 
 
 live(State) ->
