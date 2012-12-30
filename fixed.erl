@@ -1,4 +1,5 @@
--module(entity)
+-module(fixe)
+-extends(entity).
 
 -export([init/0])
 

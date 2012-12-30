@@ -1,4 +1,5 @@
--module(entity)
+-module(grass)
+-extends(plant).
 
 -export([init/0])
 

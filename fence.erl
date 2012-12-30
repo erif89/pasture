@@ -1,4 +1,5 @@
--module(entity)
+-module(fence)
+-extends(fixed_object).
 
 -export([init/0])
 
