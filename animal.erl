@@ -1,4 +1,5 @@
--module(entity).
+-module(animal).
+-extends(dynamic).
 
 -export([init/0]).
 

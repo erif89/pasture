@@ -1,4 +1,5 @@
--module(entity).
+-module(fox).
+-extends(animal).
 
 -export([init/0]).
 

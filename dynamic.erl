@@ -1,4 +1,5 @@
--module(entity).
+-module(dynamic).
+-extends(entity).
 
 -export([init/0]).
 
