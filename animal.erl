@@ -1,7 +1,7 @@
--module(animal)
+-module(animal).
 -extends(dynamic).
 
--export([init/0])
+-export([init/0]).
 
 init() -> spawn(fun() -> live(default) end).
 

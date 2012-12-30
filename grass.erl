@@ -1,7 +1,7 @@
--module(grass)
+-module(grass).
 -extends(plant).
 
--export([init/0])
+-export([init/0]).
 
 init() -> spawn(fun() -> live(default) end).
 
