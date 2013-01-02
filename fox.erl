@@ -6,8 +6,11 @@
 init() -> spawn(fun() -> live(default) end).
 
 
-live(State) ->
+live(Grid, {X, Y, State}) ->
     receive
-        {update, Info} -> live(State);
+        {update, Info} -> live(Grid, State);
         {destroy} -> State
     end.
+
+update(Grid) ->
+    

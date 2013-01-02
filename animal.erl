@@ -1,13 +1,46 @@
 -module(animal).
 -extends(dynamic).
 
--export([init/0]).
+-export([init/1]).
 
-init() -> spawn(fun() -> live(default) end).
+init(Grid) -> spawn(fun() -> live(Grid, default) end).
 
 
-live(State) ->
+live(Grid, {Pos, Graphics, State}) ->
     receive
-        {update, Info} -> live(State);
+        {update, Info} -> live(Grid, {Pos, Graphics, State});
         {destroy} -> State
     end.
+    
+    
+
+update(Pos, Grid) ->
+    ok.
+    
+inDanger(Pos, Grid, [], NearestDanger) -> NearestDanger;
+inDanger(Pos, Grid, DangerList, NearestDanger) ->
+    D = checkDanger(Pos, Grid, ets:first(Grid), hd(DangerList)),
+    
+    if
+        D =:= Pos ->
+            inDanger(Pos, Grid, tl(DangerList), NearestDanger);
+        true ->
+    %        if 
+    %            false -> % replace with proper distance check
+                    inDanger(Pos, Grid, tl(DangerList), D)
+    %            true ->
+    %                inDanger(Pos, Grid, tl(DangerList), NearestDanger)
+    %        end;
+    end.
+    
+
+checkDanger(Pos, Grid, '$end_of_table', Danger) -> Pos;
+checkDanger({X,Y}, Grid, CurrKey, Danger) -> 
+    {X,Y}.
+    
+   
+
+    
+move(OldPos, NewPos, Graphics) ->
+    % paint the old position with whatever is underneath
+    base:updateGraphics(NewPos, Graphics).

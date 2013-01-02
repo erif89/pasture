@@ -1,13 +1,21 @@
 -module(rabbit).
 -extends(animal).
 
--export([init/0]).
+-export([init/1]).
 
-init() -> spawn(fun() -> live(default) end).
+init(Grid) -> spawn(fun() -> live(Grid, default) end).
 
 
-live(State) ->
+live(Grid, State) ->
     receive
-        {update, Info} -> live(State);
+        {update, Info} -> live(Grid, State);
         {destroy} -> State
+    end.
+
+update({X, Y}, Grid) ->
+    if
+        ((X > 30) or (Y > 30)) ->
+            ok;
+        true ->
+            base:move({X, Y}, {X-1, Y-1}, blue)
     end.

@@ -39,7 +39,7 @@ drawAll(Grid, Curr) ->
     drawAll(Grid, ets:next(Grid, Curr)).
     
 
-draw([{{X, Y},Type} | Rest]) ->
+draw([{{X, Y},Type, _} | Rest]) ->
     % io:put_chars("Attempting to draw once\n"),
     frame ! {change_cell, X, Y, Type}.
     
