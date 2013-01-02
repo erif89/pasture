@@ -21,7 +21,9 @@ init_test_() ->
 
 start() ->
     Grid = ets:new('grid', [bag]),
-    ets:insert(Grid, [{{1,1},purple}, {{3,3},green}]),
+    EntityPos = {1,1},
+    EntityPid = rabbit:init(Grid, EntityPos),
+    ets:insert(Grid, [{EntityPos,EntityPid}]),
     run(Grid).
     
 run(Grid) ->
@@ -29,9 +31,23 @@ run(Grid) ->
     receive
         after 100 ->
             %% update
-            drawAll(Grid, ets:first(Grid)),
+            updateEntities(Grid, ets:first(Grid)),
             run(Grid)
         end.
+        
+        
+updateEntities(Grid, '$end_of_table') -> ok;
+updateEntities(Grid, CurrentKey) ->
+    updateCell(ets:lookup(Grid, CurrentKey)),
+    updateEntities(Grid, ets:next(Grid, CurrentKey)).
+    
+updateCell([]) -> ok;
+updateCell([{{X, Y}, Pid} | Rest]) -> 
+    io:put_chars("Sending update message\n"),
+    Pid ! update,
+    updateCell(Rest).
+    
+
 
 drawAll(Grid, '$end_of_table') -> ok;
 drawAll(Grid, Curr) -> 

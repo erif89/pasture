@@ -1,13 +1,7 @@
 -module(dynamic).
 -extends(entity).
 
--export([init/0]).
+% -export([init/0]).
 
-init() -> spawn(fun() -> live(default) end).
+% init() -> spawn(fun() -> live(default) end).
 
-
-live(State) ->
-    receive
-        {update, Info} -> live(State);
-        {destroy} -> State
-    end.

@@ -1,21 +1,26 @@
 -module(rabbit).
 -extends(animal).
 
--export([init/1]).
+% cd("C:/users/carl/pasture").
 
-init(Grid) -> spawn(fun() -> live(Grid, default) end).
+-export([init/2]).
+
+init(Grid, Pos) -> spawn(fun() -> live(Grid, Pos) end).
 
 
-live(Grid, State) ->
+live(Grid, Pos) ->
+    io:put_chars("rabbit is alive\n"),
     receive
-        {update, Info} -> live(Grid, State);
-        {destroy} -> State
+        update -> 
+            io:put_chars("rabbit attempting update\n"),
+            NewPos = update(Grid, Pos),
+            live(Grid, NewPos);
+        destroy -> Pos;
+        _ -> 
+            io:put_chars("Unknown message\n")
     end.
 
-update({X, Y}, Grid) ->
-    if
-        ((X > 30) or (Y > 30)) ->
-            ok;
-        true ->
-            base:move({X, Y}, {X-1, Y-1}, blue)
-    end.
+update(Grid, {X, Y}) when ((X > 30) or (Y > 30)) ->
+        {X, Y};
+update(Grid, {X, Y}) ->
+    ?BASE_MODULE:move({X, Y}, {X+1, Y+1}, blue).

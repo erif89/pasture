@@ -1,16 +1,11 @@
 -module(animal).
 -extends(dynamic).
 
--export([init/1]).
+-export([move/3]).
 
-init(Grid) -> spawn(fun() -> live(Grid, default) end).
+% init(Grid) -> spawn(fun() -> live(Grid, default) end).
 
 
-live(Grid, {Pos, Graphics, State}) ->
-    receive
-        {update, Info} -> live(Grid, {Pos, Graphics, State});
-        {destroy} -> State
-    end.
     
     
 
@@ -42,5 +37,5 @@ checkDanger({X,Y}, Grid, CurrKey, Danger) ->
 
     
 move(OldPos, NewPos, Graphics) ->
-    % paint the old position with whatever is underneath
-    base:updateGraphics(NewPos, Graphics).
+    ?BASE_MODULE:updateGraphics(OldPos, NewPos, Graphics),
+    NewPos.
