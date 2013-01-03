@@ -18,12 +18,19 @@ init_test_() ->
     Grid = init(),
     [?_assert(ets:lookup(Grid, {0,0}) =:= [])].
 
+% Returns a list of entities with random positions
+generate_entities(Grid, NumFoxes, NumRabbits, NumGrass, SizeX, SizeY) ->
+    FoxPositions = [{Z + random:uniform(SizeX), Z + random:uniform(SizeY)} || Z <- lists:duplicate(NumFoxes, 0)],
+    RabbitPositions = [{Z + random:uniform(SizeX), Z + random:uniform(SizeY)} || Z <- lists:duplicate(NumRabbits, 0)],
+    GrassPositions = [{Z + random:uniform(SizeX), Z + random:uniform(SizeY)} || Z <- lists:duplicate(NumGrass, 0)],
+    Foxes = lists:map(fun(Pos) -> {Pos, fox:init(Grid, Pos)} end, FoxPositions),
+    Rabbits = lists:map(fun(Pos) -> {Pos, rabbit:init(Grid, Pos)} end, RabbitPositions),
+    GrassTufts = lists:map(fun(Pos) -> {Pos, grass:init(Grid, Pos)} end, GrassPositions),
+    Foxes ++ Rabbits ++ GrassTufts.
 
 start() ->
     Grid = ets:new('grid', [bag, public]),
-    EntityPos = {1,1},
-    EntityPid = rabbit:init(Grid, EntityPos),
-    ets:insert(Grid, [{EntityPos,EntityPid}]),
+    ets:insert(Grid, generate_entities(Grid,1,1,1,4,4)),
     run(Grid).
     
 run(Grid) ->
