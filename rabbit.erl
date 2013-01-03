@@ -9,10 +9,10 @@ init(Grid, Pos) -> spawn(fun() -> live(Grid, Pos) end).
 
 
 live(Grid, Pos) ->
-    io:put_chars("rabbit is alive\n"),
+
     receive
         update -> 
-            io:put_chars("rabbit attempting update\n"),
+
             NewPos = update(Grid, Pos),
             live(Grid, NewPos);
         destroy -> Pos;

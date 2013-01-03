@@ -20,7 +20,7 @@ init_test_() ->
 
 
 start() ->
-    Grid = ets:new('grid', [bag]),
+    Grid = ets:new('grid', [bag, public]),
     EntityPos = {1,1},
     EntityPid = rabbit:init(Grid, EntityPos),
     ets:insert(Grid, [{EntityPos,EntityPid}]),
@@ -43,7 +43,7 @@ updateEntities(Grid, CurrentKey) ->
     
 updateCell([]) -> ok;
 updateCell([{{X, Y}, Pid} | Rest]) -> 
-    io:put_chars("Sending update message\n"),
+    % io:put_chars("Sending update message\n"),
     Pid ! update,
     updateCell(Rest).
     
