@@ -1,13 +1,19 @@
 -module(grass).
 -extends(plant).
 
--export([init/0]).
+-export([init/2]).
 
-init() -> spawn(fun() -> live(default) end).
+init(Grid, Pos) -> spawn(fun() -> live(Grid, Pos) end).
 
-
-live(Grid, State) ->
+live(Grid, Pos) ->
     receive
-        {update, Info} -> live(Grid, State);
-        {destroy} -> State
+        update ->
+            NewPos = update(Grid, Pos),
+            live(Grid, NewPos);
+        destroy -> Pos;
+        _ -> 
+            io:put_chars("Unknown message\n")
     end.
+
+update(_Grid, Pos) ->
+    ?BASE_MODULE:updateGraphics(Pos, Pos, green).

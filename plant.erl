@@ -8,6 +8,6 @@ init() -> spawn(fun() -> live(default) end).
 
 live(State) ->
     receive
-        {update, Info} -> live(State);
-        {destroy} -> State
+        update -> live(State);
+        destroy -> ok
     end.
