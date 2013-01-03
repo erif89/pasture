@@ -1,7 +1,7 @@
 -module(animal).
 -extends(dynamic).
 
--export([move/3]).
+-export([move/4]).
 
 % init(Grid) -> spawn(fun() -> live(Grid, default) end).
 
