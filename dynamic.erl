@@ -1,10 +1,9 @@
 -module(dynamic).
 -extends(entity).
 
-% -export([init/0]).
+-export([deleteFromPos/2]).
 
-% init() -> spawn(fun() -> live(default) end).
-
+% Delete self from position Pos in the ets Grid
 deleteFromPos(Grid, Pos) ->
     L = ets:lookup(Grid, Pos),
     ets:delete(Grid, Pos),
