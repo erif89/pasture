@@ -21,6 +21,6 @@ live(Grid, Pos) ->
     end.
 
 update(Grid, {X, Y}) when ((X > 30) or (Y > 30)) ->
-        {X, Y};
+    {X, Y};
 update(Grid, {X, Y}) ->
-    ?BASE_MODULE:move({X, Y}, {X+1, Y+1}, blue).
+    ?BASE_MODULE:move(Grid, {X, Y}, {X+1, Y+1}, blue).

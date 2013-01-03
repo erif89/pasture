@@ -33,9 +33,13 @@ checkDanger(Pos, Grid, '$end_of_table', Danger) -> Pos;
 checkDanger({X,Y}, Grid, CurrKey, Danger) -> 
     {X,Y}.
     
-   
 
-    
-move(OldPos, NewPos, Graphics) ->
+
+% Change position of entity in the ets, by changing which key (position) is
+% mapped to the PID of this animal.
+move(Grid, OldPos, NewPos, Graphics) ->
+    % TODO check that OldPos and NewPos is valid
+    ?BASE_MODULE:deleteFromPos(Grid, OldPos),
+    ets:insert(Grid, [{NewPos, self()}]),
     ?BASE_MODULE:updateGraphics(OldPos, NewPos, Graphics),
     NewPos.
