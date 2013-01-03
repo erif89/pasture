@@ -1,13 +1,13 @@
 -module(fence).
 -extends(fixed_object).
 
--export([init/0]).
+-export([init/1]).
 
-init() -> spawn(fun() -> live(default) end).
+init(Grid) -> spawn(fun() -> tick(Grid, default) end).
 
 
-live(Grid, State) ->
+tick(Grid, State) ->
     receive
-        {update, Info} -> live(Grid, State);
-        {destroy} -> State
+        update -> tick(Grid, State);
+        destroy -> ok
     end.
