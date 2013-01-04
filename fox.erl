@@ -15,7 +15,12 @@ live(Grid, Pos) ->
             io:put_chars("Unknown message\n")
     end.
 
-update(Grid, {X, Y}) when ((X > 30) or (Y > 30)) ->
-    {X, Y};
 update(Grid, {X, Y}) ->
-    ?BASE_MODULE:move(Grid, {X, Y}, {X+1, Y+1}, red).
+    ?BASE_MODULE:move(
+        Grid, 
+        {X, Y}, 
+        {   
+            X+random:uniform(2)-random:uniform(2), 
+            Y+random:uniform(2)-random:uniform(2)
+        }, 
+        red).

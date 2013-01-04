@@ -1,13 +1,17 @@
 -module(fixed).
 -extends(entity).
 
--export([init/1]).
+-export([init/2]).
 
-init(Grid) -> spawn(fun() -> tick(Grid, default) end).
+init(Grid, Pos) -> spawn(fun() -> start(Grid, Pos) end).
 
+start(Grid, Pos) ->
+    ?BASE_MODULE:updateGraphics(Pos, Pos, black),
+    tick(Grid, Pos).
 
-tick(Grid, State) ->
+tick(Grid, Pos) ->
     receive
-        update -> tick(Grid, State);
+        update -> ?BASE_MODULE:updateGraphics(Pos, Pos, black),
+            tick(Grid, Pos);
         destroy -> ok
     end.

@@ -37,9 +37,17 @@ checkDanger({X,Y}, Grid, CurrKey, Danger) ->
 
 % Change position of entity in the ets, by changing which key (position) is
 % mapped to the PID of this animal.
+% TODO: make sure they cant walk on occupied squares.
 move(Grid, OldPos, NewPos, Graphics) ->
-    % TODO check that OldPos and NewPos is valid
-    ?BASE_MODULE:deleteFromPos(Grid, OldPos),
-    ets:insert(Grid, [{NewPos, self()}]),
-    ?BASE_MODULE:updateGraphics(OldPos, NewPos, Graphics),
-    NewPos.
+    Stuff = ets:lookup(Grid, NewPos),
+ %   if
+ %       Stuff =:= [] ->
+ %       io:put_chars("Unable to move\n"),
+ %           OldPos;
+ %       true ->
+            % TODO check that OldPos and NewPos is valid
+            ?BASE_MODULE:deleteFromPos(Grid, OldPos),
+            ets:insert(Grid, [{NewPos, self()}]),
+            ?BASE_MODULE:updateGraphics(OldPos, NewPos, Graphics),
+            NewPos.
+ %   end.
