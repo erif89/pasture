@@ -112,9 +112,8 @@ init_frame() ->
 
 default_setup() ->
     set_w(50),
-    set_h(50),
-    set_head("Simple stupid frame"),
-    set_foot("Dummies: 20 - Smarties: 0").
+    set_h(40),
+    set_head("Simple stupid frame").
 
 cellpadding() ->
     10.
