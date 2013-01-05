@@ -49,11 +49,10 @@ decide(_Obstacles, OldPos, []) ->
     OldPos;
 decide(Obstacles, OldPos, [NewPos|Rest]) ->
     AtPos = fun ({_,Pos}) -> Pos =:= NewPos end,
-    Invalid = lists:any(AtPos, Obstacles),
-    if
-        Invalid ->
-            decide(Obstacles, OldPos, Rest);
+    case lists:any(AtPos, Obstacles) of
         true ->
+            decide(Obstacles, OldPos, Rest);
+        false  ->
             NewPos
     end.
 
