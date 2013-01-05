@@ -26,8 +26,10 @@ navigate(Grid, X, Y) ->
     % List the possible moves
     Moves = [{X+1,Y},{X,Y+1},{X+1,Y+1},
         {X-1,Y-1},{X-1,Y},{X,Y-1},{X-1,Y+1},{X+1,Y-1}],
+    % Rearrange them randomly
+    L = [Z||{_,Z} <- lists:sort([{random:uniform(), Move} || Move <- Moves])],
     % Send queries to entities at adjacent tiles
-    NumMsgs = ?BASE_MODULE:sendQueries(Grid, Moves, 0),
+    NumMsgs = ?BASE_MODULE:sendQueries(Grid, L, 0),
     % Receive answers
     Receive = fun (_) -> receive {pong, Type, Pos} -> {Type, Pos} end end,
     Answers = lists:map(Receive, lists:seq(1, NumMsgs)),
@@ -38,8 +40,7 @@ navigate(Grid, X, Y) ->
     Fixed = lists:filter(IsType(fixed), Answers),
     Grass = lists:filter(IsType(grass), Answers),
     % Construct prioritized list of positions and take the first valid one
-    % TODO shuffle the Moves list
-    Candidates = lists:map(fun ({_, Pos}) -> Pos end, Grass) ++ Moves,
+    Candidates = lists:map(fun ({_, Pos}) -> Pos end, Grass) ++ L,
     ?BASE_MODULE:decide(Rabbits ++ Foxes ++ Fixed, {X, Y}, Candidates).
 
 update(Grid, {X, Y}) ->

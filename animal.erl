@@ -59,13 +59,7 @@ decide(Obstacles, OldPos, [NewPos|Rest]) ->
 move(Grid, Pos, Pos, Graphics) -> Pos;
 move(Grid, OldPos, NewPos, Graphics) ->
     Stuff = ets:lookup(Grid, NewPos),
-    if
-        Stuff =/= [] ->
-            % io:put_chars("Unable to move\n"),
-            OldPos;
-        true ->
-            ?BASE_MODULE:deleteFromPos(Grid, OldPos),
-            ets:insert(Grid, [{NewPos, self()}]),
-            ?BASE_MODULE:updateGraphics(OldPos, NewPos, Graphics),
-            NewPos
-    end.
+    ?BASE_MODULE:deleteFromPos(Grid, OldPos),
+    ets:insert(Grid, [{NewPos, self()}]),
+    ?BASE_MODULE:updateGraphics(OldPos, NewPos, Graphics),
+    NewPos.
