@@ -10,6 +10,9 @@ live(Grid, Pos) ->
         update ->
             update(Grid, Pos),
             live(Grid, Pos);
+        {ping, Pid} ->
+            Pid ! {pong, grass, Pos},
+            live(Grid, Pos);
         destroy -> Pos;
         _ -> 
             io:put_chars("Unknown message\n")

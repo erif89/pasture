@@ -1,7 +1,7 @@
 -module(animal).
 -extends(dynamic).
 
--export([move/4]).
+-export([move/4, sendQueries/3, decide/3]).
 
 % init(Grid) -> spawn(fun() -> live(Grid, default) end).
 
@@ -32,6 +32,26 @@ inDanger(Pos, Grid, DangerList, NearestDanger) ->
 checkDanger(Pos, Grid, '$end_of_table', Danger) -> Pos;
 checkDanger({X,Y}, Grid, CurrKey, Danger) -> 
     {X,Y}.
+
+% Sends ping msgs to all Pids in the list and returns its length
+sendQueries(_Grid, [], Acc) -> Acc;
+sendQueries(Grid, [Pos|Rest], Acc) ->
+    Stuff = ets:lookup(Grid, Pos),
+    Send = fun (Pid, Len) -> Pid ! {ping, self()}, (Len + 1) end,
+    NumMsgs = lists:mapfoldl(Send, 0, Stuff),
+    sendQueries(Grid, Rest, Acc + NumMsgs).
+
+% Returns the first position in Candidates (3rd arg) that does not collide
+decide(_Obstacles, OldPos, []) ->
+    OldPos;
+decide(Obstacles, OldPos, [NewPos|Rest]) ->
+    AtPos = fun ({_,Pos}) -> Pos =:= NewPos end,
+    case lists:any(AtPos, Obstacles) of
+        true ->
+            decide(Obstacles, OldPos, Rest);
+        false  ->
+            NewPos
+    end.
 
 % Change position of entity in the ets, by changing which key (position) is
 % mapped to the PID of this animal.

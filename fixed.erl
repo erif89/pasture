@@ -13,5 +13,8 @@ tick(Grid, Pos) ->
     receive
         update -> ?BASE_MODULE:updateGraphics(Pos, Pos, black),
             tick(Grid, Pos);
+        {ping, Pid} ->
+            Pid ! {pong, fixed, Pos},
+            tick(Grid, Pos);
         destroy -> ok
     end.
