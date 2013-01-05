@@ -9,13 +9,13 @@ init(Grid, Pos) -> spawn(fun() -> live(Grid, Pos) end).
 
 
 live(Grid, Pos) ->
-
+    random:seed(erlang:now()),
     receive
         update ->
             NewPos = update(Grid, Pos),
             live(Grid, NewPos);
         {ping, Pid} ->
-            Pid ! {pong, rabbit, Pos},
+            Pid ! {pong, rabbit, Pos, Pid},
             live(Grid, Pos);
         destroy -> Pos;
         _ -> 
@@ -31,7 +31,7 @@ navigate(Grid, X, Y) ->
     % Send queries to entities at adjacent tiles
     NumMsgs = ?BASE_MODULE:sendQueries(Grid, L, 0),
     % Receive answers
-    Receive = fun (_) -> receive {pong, Type, Pos} -> {Type, Pos} end end,
+    Receive = fun (_) -> receive {pong, Type, Pos, Pid} -> {Type, Pos, Pid} end end,
     Answers = lists:map(Receive, lists:seq(1, NumMsgs)),
     % Filter out the different entities
     IsType = fun (Atom) -> fun ({Type, _}) -> Type =:= Atom end end,
