@@ -37,8 +37,8 @@ checkDanger({X,Y}, Grid, CurrKey, Danger) ->
 sendQueries(_Grid, [], Acc) -> Acc;
 sendQueries(Grid, [Pos|Rest], Acc) ->
     Stuff = ets:lookup(Grid, Pos),
-    Send = fun (Pid, Len) -> Pid ! {ping, self()}, (Len + 1) end,
-    NumMsgs = lists:mapfoldl(Send, 0, Stuff),
+    Send = fun (Pid, Len) -> {Pid ! {ping, self()}, Len + 1} end,
+    {_, NumMsgs} = lists:mapfoldl(Send, 0, Stuff),
     sendQueries(Grid, Rest, Acc + NumMsgs).
 
 % Returns the first position in Candidates (3rd arg) that does not collide
