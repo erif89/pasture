@@ -27,23 +27,28 @@ navigate(X, Y) ->
         {X-1,Y-1},{X-1,Y},{X,Y-1},{X-1,Y+1},{X+1,Y-1}],
     % Rearrange them randomly
     L = [X||{_,X} <- lists:sort([{random:uniform(), Move} || Move <- Moves])],
-    % Decide which move to make
-    case navigate(L) of
+    % Send queries to entities at adjacent tiles
+    NumMsgs = sendQueries(L, 0),
+    % Receive answers
+    Receive = fun (_) -> receive {answer, Type, Pos} -> {Type, Pos} end,
+    Answers = lists:map(Receive, lists:seq(1, NumMsgs)),
+    if
+        Answers =:= [] ->
+            {X+random:uniform(3)-3, Y+random:uniform(3)-3}; % No neighbours
+        lists:any(fun (Type) -> Type =:= grass, Answers) ->
+            navigate(Rest);
+        lists:any(fun (Type) -> Type =:= rabbit, Answers) -> navigate(Rest);
+    case  of
         unableToMove -> {X, Y};
         Pos -> Pos
     end.
 
-navigate([]) -> unableToMove;
-navigate([Pos|Rest]) ->
+sendQueries([], Acc) -> Acc;
+sendQueries([Pos|Rest], Acc) ->
     Stuff = ets:lookup(Grid, Pos),
-    lists:foreach(fun (Pid) -> Pid ! {query, self()} end, Stuff),
-    Answers = lists:map(fun (_) -> receive {answer, Type} -> Type end, Stuff), % TODO could use mapfoldr here?
-    if
-        Answers =:= [] ->
-            Pos; % Should look for food
-        lists:any(fun (Type) -> Type =:= fence, Answers) ->
-            navigate(Rest);
-        lists:any(fun (Type) -> Type =:= rabbit, Answers) -> navigate(Rest);
+    Send = fun (Pid, Acc) -> Pid ! {query, self()}, Acc + 1 end,
+    NumMsgs = lists:mapfoldl(Send, 0, Stuff),
+    sendQueries(Rest, Acc + NumMsgs).
 
 update(Grid, {X, Y}) ->
     ?BASE_MODULE:move(Grid, {X, Y}, navigate(X, Y), blue).
