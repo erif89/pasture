@@ -35,7 +35,8 @@ navigate(Grid, X, Y) ->
     Foxes = lists:filter(IsType(fox), Answers),
     Fences = lists:filter(IsType(fence), Answers),
     Grass = lists:filter(IsType(grass), Answers),
-    decide(Rabbits, Foxes, Fences, Grass, {X, Y}, Moves).
+    Candidates = lists:map(fun ({_, Pos}) -> Pos end, Grass) ++ Moves,
+    decide(Rabbits, Foxes, Fences, {X, Y}, Candidates).
 
 sendQueries(Grid, [], Acc) -> Acc;
 sendQueries(Grid, [Pos|Rest], Acc) ->
@@ -44,27 +45,16 @@ sendQueries(Grid, [Pos|Rest], Acc) ->
     NumMsgs = lists:mapfoldl(Send, 0, Stuff),
     sendQueries(Grid, Rest, Acc + NumMsgs).
 
-decide(Rabbits, Foxes, Fences, [], OldPos, []) ->
+decide(Rabbits, Foxes, Fences, OldPos, []) ->
     OldPos;
-decide(Rabbits, Foxes, Fences, [], OldPos, [NewPos|Rest]) ->
+decide(Rabbits, Foxes, Fences, OldPos, [NewPos|Rest]) ->
     AtPos = fun ({_,Pos}) -> Pos =:= NewPos end,
     RabbitBlock = lists:any(AtPos, Rabbits),
     FoxBlock = lists:any(AtPos, Foxes),
     FenceBlock = lists:any(AtPos, Fences),
     if
         RabbitBlock or FoxBlock or FenceBlock ->
-            decide(Rabbits, Foxes, Fences, [], OldPos, Rest);
-        true ->
-            NewPos
-    end;
-decide(Rabbits, Foxes, Fences, [{_,NewPos}|Rest], OldPos, Moves) ->
-    AtPos = fun ({_,Pos}) -> Pos =:= NewPos end,
-    RabbitBlock = lists:any(AtPos, Rabbits),
-    FoxBlock = lists:any(AtPos, Foxes),
-    FenceBlock = lists:any(AtPos, Fences),
-    if
-        RabbitBlock or FoxBlock or FenceBlock ->
-            decide(Rabbits, Foxes, Fences, Rest, OldPos, Moves);
+            decide(Rabbits, Foxes, Fences, OldPos, Rest);
         true ->
             NewPos
     end.
