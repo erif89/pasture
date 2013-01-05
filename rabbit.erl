@@ -14,41 +14,65 @@ live(Grid, Pos) ->
         update ->
             NewPos = update(Grid, Pos),
             live(Grid, NewPos);
-        {query, Pid} ->
-            Pid ! {answer, rabbit, Pos};
+        {ping, Pid} ->
+            Pid ! {pong, rabbit, Pos};
         destroy -> Pos;
         _ -> 
             io:put_chars("Unknown message\n")
     end.
     
-navigate(X, Y) ->
+navigate(Grid, X, Y) ->
     % List the possible moves
     Moves = [{X+1,Y},{X,Y+1},{X+1,Y+1},
         {X-1,Y-1},{X-1,Y},{X,Y-1},{X-1,Y+1},{X+1,Y-1}],
-    % Rearrange them randomly
-    L = [X||{_,X} <- lists:sort([{random:uniform(), Move} || Move <- Moves])],
     % Send queries to entities at adjacent tiles
-    NumMsgs = sendQueries(L, 0),
+    NumMsgs = sendQueries(Grid, Moves, 0),
     % Receive answers
-    Receive = fun (_) -> receive {answer, Type, Pos} -> {Type, Pos} end,
+    Receive = fun (_) -> receive {pong, Type, Pos} -> {Type, Pos} end end,
     Answers = lists:map(Receive, lists:seq(1, NumMsgs)),
+    IsType = fun (Atom) -> fun ({Type, _}) -> Type =:= Atom end end,
+    Rabbits = lists:filter(IsType(rabbit), Answers),
+    Foxes = lists:filter(IsType(fox), Answers),
+    Fences = lists:filter(IsType(fence), Answers),
+    Grass = lists:filter(IsType(grass), Answers),
+    decide(Rabbits, Foxes, Fences, Grass, {X, Y}, Moves).
+
+sendQueries(Grid, [], Acc) -> Acc;
+sendQueries(Grid, [Pos|Rest], Acc) ->
+    Stuff = ets:lookup(Grid, Pos),
+    Send = fun (Pid, Acc) -> Pid ! {ping, self()}, (Acc + 1) end,
+    NumMsgs = lists:mapfoldl(Send, 0, Stuff),
+    sendQueries(Grid, Rest, Acc + NumMsgs).
+
+decide(Rabbits, Foxes, Fences, [], OldPos, []) ->
+    OldPos;
+decide(Rabbits, Foxes, Fences, [], OldPos, [NewPos|Rest]) ->
+    AtPos = fun ({_,Pos}) -> Pos =:= NewPos end,
+    RabbitBlock = lists:any(AtPos, Rabbits),
+    FoxBlock = lists:any(AtPos, Foxes),
+    FenceBlock = lists:any(AtPos, Fences),
     if
-        Answers =:= [] ->
-            {X+random:uniform(3)-3, Y+random:uniform(3)-3}; % No neighbours
-        lists:any(fun (Type) -> Type =:= grass, Answers) ->
-            navigate(Rest);
-        lists:any(fun (Type) -> Type =:= rabbit, Answers) -> navigate(Rest);
-    case  of
-        unableToMove -> {X, Y};
-        Pos -> Pos
+        RabbitBlock or FoxBlock or FenceBlock ->
+            decide(Rabbits, Foxes, Fences, [], OldPos, Rest);
+        true ->
+            NewPos
+    end;
+decide(Rabbits, Foxes, Fences, [{_,NewPos}|Rest], OldPos, Moves) ->
+    AtPos = fun ({_,Pos}) -> Pos =:= NewPos end,
+    RabbitBlock = lists:any(AtPos, Rabbits),
+    FoxBlock = lists:any(AtPos, Foxes),
+    FenceBlock = lists:any(AtPos, Fences),
+    if
+        RabbitBlock or FoxBlock or FenceBlock ->
+            decide(Rabbits, Foxes, Fences, Rest, OldPos, Moves);
+        true ->
+            NewPos
     end.
 
-sendQueries([], Acc) -> Acc;
-sendQueries([Pos|Rest], Acc) ->
-    Stuff = ets:lookup(Grid, Pos),
-    Send = fun (Pid, Acc) -> Pid ! {query, self()}, Acc + 1 end,
-    NumMsgs = lists:mapfoldl(Send, 0, Stuff),
-    sendQueries(Rest, Acc + NumMsgs).
-
 update(Grid, {X, Y}) ->
-    ?BASE_MODULE:move(Grid, {X, Y}, navigate(X, Y), blue).
+    ?BASE_MODULE:move(Grid, {X, Y}, navigate(Grid, X, Y), blue).
+
+
+
+
+
