@@ -37,7 +37,7 @@ checkDanger({X,Y}, Grid, CurrKey, Danger) ->
 sendQueries(_Grid, [], Acc) -> Acc;
 sendQueries(Grid, [Pos|Rest], Acc) ->
     Stuff = ets:lookup(Grid, Pos),
-    Send = fun (Pid, Len) -> {Pid ! {ping, self()}, Len + 1} end,
+    Send = fun ({_,Pid}, Len) -> {Pid ! {ping, self()}, Len + 1} end,
     {_, NumMsgs} = lists:mapfoldl(Send, 0, Stuff),
     sendQueries(Grid, Rest, Acc + NumMsgs).
 
@@ -61,7 +61,7 @@ move(Grid, OldPos, NewPos, Graphics) ->
     Stuff = ets:lookup(Grid, NewPos),
     if
         Stuff =/= [] ->
-            io:put_chars("Unable to move\n"),
+            % io:put_chars("Unable to move\n"),
             OldPos;
         true ->
             ?BASE_MODULE:deleteFromPos(Grid, OldPos),
